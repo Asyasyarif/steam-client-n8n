@@ -1,0 +1,58 @@
+{
+  "name": "@asyasyarif/steam-client-n8n",
+  "version": "1.0.1",
+  "description": "Custom Steam client node for n8n with polling trigger",
+  "main": "dist/index.js",
+  "keywords": [
+    "n8n",
+    "steam",
+    "api",
+    "gaming",
+    "automation",
+    "workflow",
+    "trigger",
+    "polling"
+  ],
+  "author": {
+    "name": "Asyasyarif",
+    "url": "https://github.com/Asyasyarif"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Asyasyarif/steam-client-n8n.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Asyasyarif/steam-client-n8n/issues"
+  },
+  "homepage": "https://github.com/Asyasyarif/steam-client-n8n#readme",
+  "files": [
+    "dist/**/*",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsc && cp steam.svg dist/",
+    "dev": "ts-node index.ts",
+    "prepublishOnly": "npm run build",
+    "prepack": "npm run build"
+  },
+  "devDependencies": {
+    "@types/luxon": "^3.7.1",
+    "@types/node": "^20.0.0",
+    "n8n-workflow": "^1.114.0",
+    "typescript": "^5.9.3",
+    "ts-node": "^10.9.2"
+  },
+  "n8n": {
+    "nodes": [
+      "dist/SteamClient.node.js"
+    ],
+    "credentials": [
+      "dist/SteamApiKey.credentials.js"
+    ]
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
