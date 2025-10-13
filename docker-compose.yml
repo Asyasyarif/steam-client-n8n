@@ -53,7 +53,7 @@ services:
     volumes:
       - n8n_storage:/home/node/.n8n
       - ./dist:/home/node/.n8n/custom/node_modules/steam-custom-node
-      - ./steam.svg:/home/node/.n8n/custom/node_modules/steam-custom-node/steam.svg
+      - ./nodes/SteamClient/steam.svg:/home/node/.n8n/custom/node_modules/steam-custom-node/steam.svg
     depends_on:
       postgres:
         condition: service_healthy

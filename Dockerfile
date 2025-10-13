@@ -6,7 +6,7 @@ USER root
 COPY ./dist /home/node/.n8n/custom/node_modules/steam-custom-node
 
 # Copy icon file
-COPY ./steam.svg /home/node/.n8n/custom/node_modules/steam-custom-node/
+COPY ./nodes/SteamClient/steam.svg /home/node/.n8n/custom/node_modules/steam-custom-node/
 
 # Switch back to the node user
 USER node
