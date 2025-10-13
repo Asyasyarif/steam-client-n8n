@@ -1,9 +1,10 @@
 {
   "name": "@asyasyarif/steam-client-n8n",
-  "version": "1.0.2",
+  "version": "1.0.8",
   "description": "Custom Steam client node for n8n with polling trigger",
-  "main": "dist/index.js",
+  "main": "index.js",
   "keywords": [
+    "n8n-community-node-package",
     "n8n",
     "steam",
     "api",
@@ -27,12 +28,11 @@
   },
   "homepage": "https://github.com/Asyasyarif/steam-client-n8n#readme",
   "files": [
-    "dist/**/*",
-    "README.md",
-    "LICENSE"
+    "dist",
+    "index.js"
   ],
   "scripts": {
-    "build": "tsc && cp steam.svg dist/",
+    "build": "tsc && cp nodes/SteamClient/steam.svg dist/nodes/SteamClient/",
     "dev": "ts-node index.ts",
     "prepublishOnly": "npm run build",
     "prepack": "npm run build"
@@ -45,14 +45,15 @@
     "ts-node": "^10.9.2"
   },
   "n8n": {
-    "nodes": [
-      "dist/SteamClient.node.js"
-    ],
+    "n8nNodesApiVersion": 1,
     "credentials": [
-      "dist/SteamApiKey.credentials.js"
+      "dist/credentials/SteamApiKey.credentials.js"
+    ],
+    "nodes": [
+      "dist/nodes/SteamClient/SteamClient.node.js"
     ]
   },
   "engines": {
-    "node": ">=18.0.0"
+    "node": ">=18.10"
   }
 }

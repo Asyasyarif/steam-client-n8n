@@ -2,6 +2,7 @@
 src/
 *.ts
 !dist/**/*.d.ts
+!index.js
 
 # Development files
 node_modules/
