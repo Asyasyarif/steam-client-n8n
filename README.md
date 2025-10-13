@@ -256,4 +256,10 @@ MIT License - see [LICENSE](LICENSE) file for details.
 
 ---
 
-**Made with ❤️ for the n8n community**# steam-client-n8n
+## Disclaimer
+
+This project is an independent development and is not officially associated with Valve Corporation or Steam. All Steam-related trademarks, logos, and brand names are the exclusive property of Valve Corporation. Steam and the Steam logo are registered trademarks of Valve Corporation in the United States and other countries.
+
+---
+
+**Made with ❤️ for the n8n community**

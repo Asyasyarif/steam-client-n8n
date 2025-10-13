@@ -1,6 +1,6 @@
 {
   "name": "@asyasyarif/steam-client-n8n",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Custom Steam client node for n8n with polling trigger",
   "main": "dist/index.js",
   "keywords": [
