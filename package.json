@@ -1,5 +1,5 @@
 {
-  "name": "@asyasyarif/steam-client-n8n",
+  "name": "n8n-nodes-steam-client",
   "version": "1.0.8",
   "description": "Custom Steam client node for n8n with polling trigger",
   "main": "index.js",
@@ -34,7 +34,6 @@
   "scripts": {
     "build": "tsc && cp nodes/SteamClient/steam.svg dist/nodes/SteamClient/",
     "dev": "ts-node index.ts",
-    "prepublishOnly": "npm run build",
     "prepack": "npm run build"
   },
   "devDependencies": {

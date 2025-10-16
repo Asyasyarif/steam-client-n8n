@@ -8,7 +8,7 @@ networks:
 services:
   postgres:
     image: postgres:latest
-    networks: ['n8n-local']
+    networks: ["n8n-local"]
     restart: unless-stopped
     ports:
       - 5432:5432
@@ -19,7 +19,11 @@ services:
     volumes:
       - postgres_storage:/var/lib/postgresql/data
     healthcheck:
-      test: ['CMD-SHELL', 'pg_isready -h localhost -U ${POSTGRES_USER} -d ${POSTGRES_DB}']
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -h localhost -U ${POSTGRES_USER} -d ${POSTGRES_DB}",
+        ]
       interval: 5s
       timeout: 5s
       retries: 10
@@ -29,7 +33,7 @@ services:
       context: .
       dockerfile: Dockerfile
     image: n8nio/n8n:latest
-    networks: ['n8n-local']
+    networks: ["n8n-local"]
     container_name: n8n
     restart: unless-stopped
     ports:
@@ -42,7 +46,7 @@ services:
       - DB_POSTGRESDB_DATABASE=${POSTGRES_DB}
       - N8N_ENCRYPTION_KEY=${N8N_ENCRYPTION_KEY}
       - N8N_AI_OPENAI_API_KEY=${N8N_AI_OPENAI_API_KEY}
-      - N8N_AI_OPENAI_MODEL=gpt-4o-2024-08-06
+      - N8N_AI_OPENAI_MODEL=gpt-4o-mini
       - N8N_HOST=${N8N_HOST}
       - NODE_FUNCTION_ALLOW_BUILTIN=*
       - NODE_FUNCTION_ALLOW_EXTERNAL=*

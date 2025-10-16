@@ -1,44 +1,48 @@
-import { 
-  INodeType, 
-  INodeTypeDescription, 
-  IExecuteFunctions, 
-  IPollFunctions, 
+import {
+  INodeType,
+  INodeTypeDescription,
+  IExecuteFunctions,
+  IPollFunctions,
   INodeExecutionData,
   IDataObject,
   NodeOperationError,
+  IHttpRequestOptions,
 } from 'n8n-workflow';
 
-// Helper functions
-async function getPlayerSummaries(apiKey: string, steamId: string): Promise<any> {
-  const response = await fetch(`https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v2/?key=${apiKey}&steamids=${steamId}`);
-  if (!response.ok) {
-    throw new Error(`Steam API Error: ${response.status} ${response.statusText}`);
-  }
-  return await response.json();
+async function getPlayerSummaries(context: IExecuteFunctions | IPollFunctions, apiKey: string, steamId: string): Promise<any> {
+  const options: IHttpRequestOptions = {
+    method: 'GET',
+    url: `https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v2/?key=${apiKey}&steamids=${steamId}`,
+    json: true,
+  };
+  return await context.helpers.httpRequest(options);
 }
 
-async function getOwnedGames(apiKey: string, steamId: string): Promise<any> {
-  const response = await fetch(`https://api.steampowered.com/IPlayerService/GetOwnedGames/v1/?key=${apiKey}&steamid=${steamId}&include_appinfo=true&include_played_free_games=true`);
-  if (!response.ok) {
-    throw new Error(`Steam API Error: ${response.status} ${response.statusText}`);
-  }
-  return await response.json();
+async function getOwnedGames(context: IExecuteFunctions | IPollFunctions, apiKey: string, steamId: string): Promise<any> {
+  const options: IHttpRequestOptions = {
+    method: 'GET',
+    url: `https://api.steampowered.com/IPlayerService/GetOwnedGames/v1/?key=${apiKey}&steamid=${steamId}&include_appinfo=true&include_played_free_games=true`,
+    json: true,
+  };
+  return await context.helpers.httpRequest(options);
 }
 
-async function getRecentlyPlayedGames(apiKey: string, steamId: string): Promise<any> {
-  const response = await fetch(`https://api.steampowered.com/IPlayerService/GetRecentlyPlayedGames/v1/?key=${apiKey}&steamid=${steamId}`);
-  if (!response.ok) {
-    throw new Error(`Steam API Error: ${response.status} ${response.statusText}`);
-  }
-  return await response.json();
+async function getRecentlyPlayedGames(context: IExecuteFunctions | IPollFunctions, apiKey: string, steamId: string): Promise<any> {
+  const options: IHttpRequestOptions = {
+    method: 'GET',
+    url: `https://api.steampowered.com/IPlayerService/GetRecentlyPlayedGames/v1/?key=${apiKey}&steamid=${steamId}`,
+    json: true,
+  };
+  return await context.helpers.httpRequest(options);
 }
 
-async function getFriendList(apiKey: string, steamId: string): Promise<any> {
-  const response = await fetch(`https://api.steampowered.com/ISteamUser/GetFriendList/v1/?key=${apiKey}&steamid=${steamId}&relationship=friend`);
-  if (!response.ok) {
-    throw new Error(`Steam API Error: ${response.status} ${response.statusText}`);
-  }
-  return await response.json();
+async function getFriendList(context: IExecuteFunctions | IPollFunctions, apiKey: string, steamId: string): Promise<any> {
+  const options: IHttpRequestOptions = {
+    method: 'GET',
+    url: `https://api.steampowered.com/ISteamUser/GetFriendList/v1/?key=${apiKey}&steamid=${steamId}&relationship=friend`,
+    json: true,
+  };
+  return await context.helpers.httpRequest(options);
 }
 
 function getPersonaStateText(personastate: number): string {
@@ -122,10 +126,10 @@ export class SteamClient implements INodeType {
   };
 
   async execute(this: IExecuteFunctions) {
-    // Get credentials using n8n credentials system
+
     const credentials = await this.getCredentials('steamApiKey') as IDataObject;
     const apiKey = credentials.apiKey as string;
-    
+
     const steamId = this.getNodeParameter('steamId', 0) as string;
     const action = this.getNodeParameter('action', 0) as string;
 
@@ -134,11 +138,10 @@ export class SteamClient implements INodeType {
 
       switch (action) {
         case 'userStats':
-          const userInfo = await getPlayerSummaries(apiKey, steamId);
+          const userInfo = await getPlayerSummaries(this, apiKey, steamId);
           const user = userInfo.response.players[0];
-          const ownedGames = await getOwnedGames(apiKey, steamId);
-          
-          // Get top 5 games by playtime
+          const ownedGames = await getOwnedGames(this, apiKey, steamId);
+
           const topGames = ownedGames.response.games
             ?.sort((a: any, b: any) => b.playtime_forever - a.playtime_forever)
             ?.slice(0, 5)
@@ -146,7 +149,7 @@ export class SteamClient implements INodeType {
               name: game.name,
               playtime: formatPlaytime(game.playtime_forever)
             })) || [];
-          
+
           result = {
             action: action,
             // User Info
@@ -161,19 +164,15 @@ export class SteamClient implements INodeType {
               gameId: user.gameid || null,
               richPresence: user.gameextrainfo.includes(':') ? user.gameextrainfo : null
             } : null,
-            // Game Stats
             totalGames: ownedGames.response.game_count,
             topPlayingGames: topGames,
-            // Profile Info
             realname: user.realname || 'Not set',
             primaryClanId: user.primaryclanid || 'Not set',
             communityVisibilityState: user.communityvisibilitystate || 0,
             commentPermission: user.commentpermission || 0,
-            // Location Info
             country: user.loccountrycode || 'Not set',
             state: user.locstatecode || 'Not set',
             city: user.loccityid || 'Not set',
-            // Time Info
             accountCreated: new Date(user.timecreated * 1000).toISOString(),
             lastLogoff: new Date(user.lastlogoff * 1000).toISOString(),
             timestamp: new Date().toISOString()
@@ -181,14 +180,11 @@ export class SteamClient implements INodeType {
           break;
 
         case 'friendList':
-          const friendList = await getFriendList(apiKey, steamId);
-          
-          // Debug: Check response structure
-          console.log('Friend List Response:', JSON.stringify(friendList, null, 2));
-          
+          const friendList = await getFriendList(this, apiKey, steamId);
+
           let friends = [];
           let friendError = null;
-          
+
           if (friendList.friendslist && friendList.friendslist.friends) {
             friends = friendList.friendslist.friends.map((friend: any) => ({
               steamid: friend.steamid,
@@ -200,7 +196,7 @@ export class SteamClient implements INodeType {
           } else {
             friendError = "Friend list is private or API key doesn't have access. Note: Friend list requires the API key to be linked to the Steam ID being queried.";
           }
-          
+
           result = {
             action: action,
             totalFriends: friends.length,
@@ -213,14 +209,11 @@ export class SteamClient implements INodeType {
           break;
 
         case 'recentGames':
-          const recentGames = await getRecentlyPlayedGames(apiKey, steamId);
-          
-          // Debug: Check response structure
-          console.log('Recent Games Response:', JSON.stringify(recentGames, null, 2));
-          
+          const recentGames = await getRecentlyPlayedGames(this, apiKey, steamId);
+
           let recentGamesList = [];
           let errorMessage = null;
-          
+
           if (recentGames.response && recentGames.response.games) {
             recentGamesList = recentGames.response.games
               .slice(0, 10)
@@ -235,7 +228,7 @@ export class SteamClient implements INodeType {
           } else {
             errorMessage = "Recent games are private or API key doesn't have access. Note: Recent games requires the API key to be linked to the Steam ID being queried.";
           }
-          
+
           result = {
             action: action,
             totalRecentGames: recentGamesList.length,
@@ -249,10 +242,10 @@ export class SteamClient implements INodeType {
 
 
         default:
-          throw new Error(`Action tidak dikenal: ${action}`);
+          throw new Error(`Unknown action: ${action}`);
       }
 
-      return [this.helpers.returnJsonArray([result])];
+      return [this.helpers.returnJsonArray([{ ...result, json: result, pairedItem: { item: 0 } }])];
 
     } catch (error: any) {
       throw new NodeOperationError(this.getNode(), `Steam API Error: ${error.message}`);
@@ -260,137 +253,126 @@ export class SteamClient implements INodeType {
   }
 
   async poll(this: IPollFunctions): Promise<INodeExecutionData[][] | null> {
-    // Get credentials using n8n credentials system
     const credentials = await this.getCredentials('steamApiKey') as IDataObject;
     const apiKey = credentials.apiKey as string;
-    
+
     const steamId = this.getNodeParameter('steamId') as string;
     const action = this.getNodeParameter('action') as string;
 
     try {
       let result: any = {};
 
-        switch (action) {
-          case 'userStats':
-            const userInfo = await getPlayerSummaries(apiKey, steamId);
-            const user = userInfo.response.players[0];
-            const ownedGames = await getOwnedGames(apiKey, steamId);
-            
-            // Get top 5 games by playtime
-            const topGames = ownedGames.response.games
-              ?.sort((a: any, b: any) => b.playtime_forever - a.playtime_forever)
-              ?.slice(0, 5)
-              ?.map((game: any) => ({
+      switch (action) {
+        case 'userStats':
+          const userInfo = await getPlayerSummaries(this, apiKey, steamId);
+          const user = userInfo.response.players[0];
+          const ownedGames = await getOwnedGames(this, apiKey, steamId);
+
+
+          const topGames = ownedGames.response.games
+            ?.sort((a: any, b: any) => b.playtime_forever - a.playtime_forever)
+            ?.slice(0, 5)
+            ?.map((game: any) => ({
+              name: game.name,
+              playtime: formatPlaytime(game.playtime_forever)
+            })) || [];
+
+          result = {
+            action: action,
+            personaname: user.personaname,
+            steamid: user.steamid,
+            profileurl: user.profileurl,
+            avatar: user.avatarfull,
+            personastate: user.personastate,
+            status: getPersonaStateText(user.personastate),
+            playingGame: user.gameextrainfo || 'Not playing game',
+            gameDetails: user.gameextrainfo ? {
+              gameName: user.gameextrainfo,
+              gameId: user.gameid || null,
+              serverIp: user.gameserverip || null,
+              richPresence: user.gameextrainfo.includes(':') ? user.gameextrainfo : null
+            } : null,
+            totalGames: ownedGames.response.game_count,
+            topPlayingGames: topGames,
+            realname: user.realname || 'Not set',
+            primaryClanId: user.primaryclanid || 'Not set',
+            profileState: user.profilestate || 0,
+            communityVisibilityState: user.communityvisibilitystate || 0,
+            commentPermission: user.commentpermission || 0,
+            country: user.loccountrycode || 'Not set',
+            state: user.locstatecode || 'Not set',
+            city: user.loccityid || 'Not set',
+
+            accountCreated: new Date(user.timecreated * 1000).toISOString(),
+            lastLogoff: new Date(user.lastlogoff * 1000).toISOString(),
+            timestamp: new Date().toISOString()
+          };
+          break;
+
+        case 'friendList':
+          const friendList = await getFriendList(this, apiKey, steamId);
+
+          let friends = [];
+          let friendError = null;
+
+          if (friendList.friendslist && friendList.friendslist.friends) {
+            friends = friendList.friendslist.friends.map((friend: any) => ({
+              steamid: friend.steamid,
+              relationship: friend.relationship,
+              friendSince: new Date(friend.friend_since * 1000).toISOString()
+            }));
+          } else if (friendList.friendslist && friendList.friendslist.friends && friendList.friendslist.friends.length === 0) {
+            friendError = "No friends found or profile is private";
+          } else {
+            friendError = "Unable to fetch friend list data";
+          }
+
+          result = {
+            action: action,
+            totalFriends: friends.length,
+            friends: friends,
+            error: friendError,
+            rawResponse: friendList,
+            timestamp: new Date().toISOString()
+          };
+          break;
+
+        case 'recentGames':
+          const recentGames = await getRecentlyPlayedGames(this, apiKey, steamId);
+
+          let recentGamesList = [];
+          let errorMessage = null;
+
+          if (recentGames.response && recentGames.response.games) {
+            recentGamesList = recentGames.response.games
+              .slice(0, 10)
+              .map((game: any) => ({
                 name: game.name,
-                playtime: formatPlaytime(game.playtime_forever)
-              })) || [];
-            
-            result = {
-              action: action,
-              // User Info
-              personaname: user.personaname,
-              steamid: user.steamid,
-              profileurl: user.profileurl,
-              avatar: user.avatarfull,
-              personastate: user.personastate,
-              status: getPersonaStateText(user.personastate),
-              playingGame: user.gameextrainfo || 'Not playing game',
-              gameDetails: user.gameextrainfo ? {
-                gameName: user.gameextrainfo,
-                gameId: user.gameid || null,
-                serverIp: user.gameserverip || null,
-                richPresence: user.gameextrainfo.includes(':') ? user.gameextrainfo : null
-              } : null,
-              // Game Stats
-              totalGames: ownedGames.response.game_count,
-              topPlayingGames: topGames,
-              // Additional Info
-              realname: user.realname || 'Not set',
-              primaryClanId: user.primaryclanid || 'Not set',
-              profileState: user.profilestate || 0,
-              communityVisibilityState: user.communityvisibilitystate || 0,
-              commentPermission: user.commentpermission || 0,
-              country: user.loccountrycode || 'Not set',
-              state: user.locstatecode || 'Not set',
-              city: user.loccityid || 'Not set',
-              // Time Info
-              accountCreated: new Date(user.timecreated * 1000).toISOString(),
-              lastLogoff: new Date(user.lastlogoff * 1000).toISOString(),
-              timestamp: new Date().toISOString()
-            };
-            break;
-
-          case 'friendList':
-            const friendList = await getFriendList(apiKey, steamId);
-            
-            // Debug: Check response structure
-            console.log('Friend List Response:', JSON.stringify(friendList, null, 2));
-            
-            let friends = [];
-            let friendError = null;
-            
-            if (friendList.friendslist && friendList.friendslist.friends) {
-              friends = friendList.friendslist.friends.map((friend: any) => ({
-                steamid: friend.steamid,
-                relationship: friend.relationship,
-                friendSince: new Date(friend.friend_since * 1000).toISOString()
+                appid: game.appid,
+                playtime2weeks: formatPlaytime(game.playtime_2weeks || 0),
+                playtimeForever: formatPlaytime(game.playtime_forever || 0)
               }));
-            } else if (friendList.friendslist && friendList.friendslist.friends && friendList.friendslist.friends.length === 0) {
-              friendError = "No friends found or profile is private";
-            } else {
-              friendError = "Unable to fetch friend list data";
-            }
-            
-            result = {
-              action: action,
-              totalFriends: friends.length,
-              friends: friends,
-              error: friendError,
-              rawResponse: friendList,
-              timestamp: new Date().toISOString()
-            };
-            break;
+          } else if (recentGames.response && recentGames.response.total_count === 0) {
+            errorMessage = "No recent games found or profile is private";
+          } else {
+            errorMessage = "Unable to fetch recent games data";
+          }
 
-          case 'recentGames':
-            const recentGames = await getRecentlyPlayedGames(apiKey, steamId);
-            
-            // Debug: Check response structure
-            console.log('Recent Games Response:', JSON.stringify(recentGames, null, 2));
-            
-            let recentGamesList = [];
-            let errorMessage = null;
-            
-            if (recentGames.response && recentGames.response.games) {
-              recentGamesList = recentGames.response.games
-                .slice(0, 10)
-                .map((game: any) => ({
-                  name: game.name,
-                  appid: game.appid,
-                  playtime2weeks: formatPlaytime(game.playtime_2weeks || 0),
-                  playtimeForever: formatPlaytime(game.playtime_forever || 0)
-                }));
-            } else if (recentGames.response && recentGames.response.total_count === 0) {
-              errorMessage = "No recent games found or profile is private";
-            } else {
-              errorMessage = "Unable to fetch recent games data";
-            }
-            
-            result = {
-              action: action,
-              totalRecentGames: recentGamesList.length,
-              recentGames: recentGamesList,
-              error: errorMessage,
-              rawResponse: recentGames,
-              timestamp: new Date().toISOString()
-            };
-            break;
+          result = {
+            action: action,
+            totalRecentGames: recentGamesList.length,
+            recentGames: recentGamesList,
+            error: errorMessage,
+            rawResponse: recentGames,
+            timestamp: new Date().toISOString()
+          };
+          break;
 
-        }
+      }
 
       return [this.helpers.returnJsonArray([result])];
 
     } catch (error: any) {
-      console.error('Steam API Error:', error.message);
       throw new NodeOperationError(this.getNode(), `Steam API Error: ${error.message}`);
     }
   }
