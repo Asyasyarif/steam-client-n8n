@@ -2,8 +2,8 @@
 
 Custom n8n node for accessing Steam Web API with polling trigger.
 
-[![npm version](https://img.shields.io/npm/v/@asyasyarif/steam-client-n8n.svg)](https://www.npmjs.com/package/@asyasyarif/steam-client-n8n)
-[![npm downloads](https://img.shields.io/npm/dm/@asyasyarif/steam-client-n8n.svg)](https://www.npmjs.com/package/@asyasyarif/steam-client-n8n)
+[![npm version](https://img.shields.io/npm/v/n8n-nodes-steam-client.svg)](https://www.npmjs.com/package/n8n-nodes-steam-client)
+[![npm downloads](https://img.shields.io/npm/dm/n8n-nodes-steam-client.svg)](https://www.npmjs.com/package/n8n-nodes-steam-client)
 [![GitHub stars](https://img.shields.io/github/stars/Asyasyarif/steam-client-n8n)](https://github.com/Asyasyarif/steam-client-n8n)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
@@ -12,6 +12,7 @@ Custom n8n node for accessing Steam Web API with polling trigger.
 ## Features
 
 ### **Actions Available:**
+
 - **User Stats** - Complete Steam user information
 - **Friend List** - Steam friends list
 - **Recent Games** - Games played in the last 2 weeks
@@ -19,6 +20,7 @@ Custom n8n node for accessing Steam Web API with polling trigger.
 ### **Returned Data:**
 
 #### **User Stats:**
+
 ```json
 {
   "personaname": "Username",
@@ -53,6 +55,7 @@ Custom n8n node for accessing Steam Web API with polling trigger.
 ```
 
 #### **Friend List:**
+
 ```json
 {
   "action": "friendList",
@@ -69,6 +72,7 @@ Custom n8n node for accessing Steam Web API with polling trigger.
 ```
 
 #### **Recent Games:**
+
 ```json
 {
   "action": "recentGames",
@@ -88,11 +92,14 @@ Custom n8n node for accessing Steam Web API with polling trigger.
 ## Configuration
 
 ### **Node Parameters:**
+
 1. **Steam API Key** (Required)
+
    - Get from: https://steamcommunity.com/dev/apikey
    - Type: Password field
 
 2. **Steam ID** (Required)
+
    - Steam ID or Profile URL
    - Example: `765611981073xxxx` or `https://steamcommunity.com/id/username`
 
@@ -102,24 +109,28 @@ Custom n8n node for accessing Steam Web API with polling trigger.
    - `Recent Games` - Recent games (requires API key same as Steam ID)
 
 ### **Poll Settings:**
+
 - **Mode**: Every Minute, Every 5 Minutes, Every 10 Minutes, Every 30 Minutes, Every Hour, Custom
 - **Custom Interval**: Minimum 10 seconds
 
 ## Installation
 
 ### **Prerequisites:**
+
 - n8n installed and running
 - Steam Web API Key ([Get one here](https://steamcommunity.com/dev/apikey))
 
 ### **Installation Steps:**
 
 #### **Method 1: NPM Package (Recommended)**
+
 ```bash
 # Install via npm
-npm install @asyasyarif/steam-client-n8n
+npm install n8n-nodes-steam-client
 ```
 
 #### **Method 2: From Source**
+
 ```bash
 # Clone repository
 git clone https://github.com/Asyasyarif/steam-client-n8n.git
@@ -133,6 +144,7 @@ npm run build
 ```
 
 ### **Verify Installation:**
+
 1. Open n8n interface
 2. Go to **Settings** → **Community Nodes**
 3. Look for **Steam Client** in **Trigger** category
@@ -141,6 +153,7 @@ npm run build
 ## Usage
 
 ### **Step 1: Setup Credentials**
+
 1. Go to **Credentials** in n8n
 2. Click **Create New**
 3. Select **Steam API Key**
@@ -148,6 +161,7 @@ npm run build
 5. **Save** credentials
 
 ### **Step 2: Create Workflow**
+
 1. Create new workflow
 2. Add **Steam Client** node (from Trigger category)
 3. Configure node:
@@ -160,21 +174,25 @@ npm run build
 ### **Example Workflows:**
 
 #### **Basic User Monitoring:**
+
 ```
 Steam Client (User Stats) → Slack/Email Notification
 ```
 
 #### **Game Activity Tracking:**
+
 ```
 Steam Client (Recent Games) → Database → Analytics Dashboard
 ```
 
 #### **Friend Activity Monitor:**
+
 ```
 Steam Client (Friend List) → Webhook → Discord Bot
 ```
 
 ### **Advanced Configuration:**
+
 - **Polling Interval**: Set based on your needs (minimum 1 minute recommended)
 - **Error Handling**: Add error handling nodes for API failures
 - **Data Processing**: Use n8n's data transformation nodes for custom formatting
@@ -182,11 +200,13 @@ Steam Client (Friend List) → Webhook → Discord Bot
 ## Important Notes
 
 ### **Privacy Restrictions:**
+
 - **Friend List** and **Recent Games** require API key **same** as Steam ID being queried
 - If querying other people's Steam ID, data will be empty due to privacy settings
 - Ensure target Steam ID has profile visibility set to "Public"
 
 ### **API Limits:**
+
 - Steam Web API has rate limits
 - Use reasonable polling interval (minimum 1 minute)
 - Monitor usage in Steam API key dashboard
@@ -194,15 +214,18 @@ Steam Client (Friend List) → Webhook → Discord Bot
 ## Troubleshooting
 
 ### **"No node to start workflow":**
+
 - Ensure node is built and restart n8n
 - Check n8n logs for any errors
 
 ### **"Friend List/Recent Games empty":**
+
 - API key must be same as Steam ID being queried
 - Target profile must be set to "Public"
 - Check error message in output
 
 ### **"Steam API Error":**
+
 - Verify API key is valid
 - Check Steam ID format
 - Monitor rate limits
@@ -227,6 +250,7 @@ Node supports **Rich Presence** for currently playing games:
 We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for details.
 
 ### **Development Setup:**
+
 ```bash
 # Fork and clone repository
 git clone https://github.com/Asyasyarif/steam-client-n8n.git
@@ -240,6 +264,7 @@ npm run build
 ```
 
 ### **Reporting Issues:**
+
 - Use GitHub Issues for bug reports
 - Include n8n version and node configuration
 - Provide error logs when possible
@@ -248,7 +273,7 @@ npm run build
 
 MIT License - see [LICENSE](LICENSE) file for details.
 
-##  Acknowledgments
+## Acknowledgments
 
 - [n8n](https://n8n.io/) for the amazing workflow automation platform
 - [Steam Web API](https://developer.valvesoftware.com/wiki/Steam_Web_API) for providing the API
